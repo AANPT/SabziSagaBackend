@@ -3,13 +3,10 @@ import { config } from "dotenv";
 import cookieParser from "cookie-parser";
 import ErrorMiddleware from "./middlewares/Error.js";
 import cors from "cors";
-// import stripe from "stripe";
 
 config({
   path: "./config/config.env",
 });
-
-// export const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 app.use(
