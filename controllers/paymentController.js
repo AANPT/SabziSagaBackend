@@ -64,15 +64,15 @@ export const paymentVerification = catchAsyncError(async (req, res, next) => {
       razorpay_signature,
     });
 
-    if (!isAuthentic)
-      return res.redirect(`${process.env.FRONTEND_URL}/paymentfail`);
+    // if (!isAuthentic)
+    //   return res.redirect(`${process.env.FRONTEND_URL}/paymentfail`);
 
-    // database comes here
-    await Payment.create({
-      razorpay_signature,
-      razorpay_payment_id,
-      razorpay_subscription_id,
-    });
+    // // database comes here
+    // await Payment.create({
+    //   razorpay_signature,
+    //   razorpay_payment_id,
+    //   razorpay_subscription_id,
+    // });
 
     res.redirect(
       `${process.env.FRONTEND_URL}/paymentsuccess?reference=${razorpay_payment_id}`
