@@ -1,6 +1,6 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError.js";
 import ErrorHandler from "../utils/errorHandler.js";
-// import  User  from "../models/User.js";
+import User from "../models/User.js";
 import Product from "../models/Product.js";
 import cloudinary from "cloudinary";
 import getDataUri from "../utils/dataUri.js";
@@ -19,23 +19,23 @@ export const register = catchAsyncError(async (req, res, next) => {
   const fileUri = getDataUri(file);
   const mycloud = await cloudinary.v2.uploader.upload(fileUri.content);
 
-  // let user = await User.findOne({ email });
+  let user = await User.findOne({ email });
 
-  // if (user) return next(new ErrorHandler("User Already Exist", 409));
+  if (user) return next(new ErrorHandler("User Already Exist", 409));
 
-  // user = await User.create({
-  //   name,
-  //   username,
-  //   email,
-  //   password,
-  //   phoneNo,
-  //   avatar: {
-  //     public_id: mycloud.public_id,
-  //     url: mycloud.secure_url,
-  //   },
-  // });
+  user = await User.create({
+    name,
+    username,
+    email,
+    password,
+    phoneNo,
+    avatar: {
+      public_id: mycloud.public_id,
+      url: mycloud.secure_url,
+    },
+  });
 
-  // sendToken(res, user, "Registered Successfully", 201);
+  sendToken(res, user, "Registered Successfully", 201);
 });
 
 export const registerVendor = catchAsyncError(async (req, res, next) => {
@@ -48,23 +48,23 @@ export const registerVendor = catchAsyncError(async (req, res, next) => {
   const fileUri = getDataUri(file);
   const mycloud = await cloudinary.v2.uploader.upload(fileUri.content);
 
-  // let user = await User.findOne({ email });
+  let user = await User.findOne({ email });
 
-  // if (user) return next(new ErrorHandler("User Already Exist", 409));
+  if (user) return next(new ErrorHandler("User Already Exist", 409));
 
-  // user = await User.create({
-  //   name,
-  //   username,
-  //   email,
-  //   phoneNo,
-  //   role,
-  //   password,
-  //   avatar: {
-  //     public_id: mycloud.public_id,
-  //     url: mycloud.secure_url,
-  //   },
-  // });
-  // sendToken(res, user, "Vendor Registered Successfully", 201);
+  user = await User.create({
+    name,
+    username,
+    email,
+    phoneNo,
+    role,
+    password,
+    avatar: {
+      public_id: mycloud.public_id,
+      url: mycloud.secure_url,
+    },
+  });
+  sendToken(res, user, "Vendor Registered Successfully", 201);
 });
 
 export const login = catchAsyncError(async (req, res, next) => {
@@ -73,16 +73,16 @@ export const login = catchAsyncError(async (req, res, next) => {
   if (!email || !password)
     return next(new ErrorHandler("Please enter all field", 400));
 
-  // const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ email }).select("+password");
 
-  // if (!user) return next(new ErrorHandler("Incorrect Email or Password", 401));
+  if (!user) return next(new ErrorHandler("Incorrect Email or Password", 401));
 
-  // const isMatch = await user.comparePassword(password);
+  const isMatch = await user.comparePassword(password);
 
-  // if (!isMatch)
-  //   return next(new ErrorHandler("Incorrect Email or Password", 401));
+  if (!isMatch)
+    return next(new ErrorHandler("Incorrect Email or Password", 401));
 
-  // sendToken(res, user, `Welcome back, ${user.name}`, 200);
+  sendToken(res, user, `Welcome back, ${user.name}`, 200);
 });
 
 export const logout = catchAsyncError(async (req, res, next) => {
@@ -101,11 +101,11 @@ export const logout = catchAsyncError(async (req, res, next) => {
 });
 
 export const getMyProfile = catchAsyncError(async (req, res, next) => {
-  // const user = await User.findById(req.user._id);
-  // res.status(200).json({
-  //   success: true,
-  //   user,
-  // });
+  const user = await User.findById(req.user._id);
+  res.status(200).json({
+    success: true,
+    user,
+  });
 });
 
 export const updateProfile = catchAsyncError(async (req, res, next) => {});
@@ -126,15 +126,15 @@ export const changePassword = catchAsyncError(async (req, res, next) => {
       new ErrorHandler("New and confirm password is not matching", 400)
     );
 
-  // const user = await User.findById(req.user._id).select("+password");
+  const user = await User.findById(req.user._id).select("+password");
 
-  // const isMatch = await user.comparePassword(oldPassword);
+  const isMatch = await user.comparePassword(oldPassword);
 
-  // if (!isMatch) return next(new ErrorHandler("Incorrect Old Password", 400));
+  if (!isMatch) return next(new ErrorHandler("Incorrect Old Password", 400));
 
-  // user.password = newPassword;
+  user.password = newPassword;
 
-  // await user.save();
+  await user.save();
 
   res.status(200).json({
     success: true,
@@ -147,16 +147,16 @@ export const forgetPassword = catchAsyncError(async (req, res, next) => {
 
   if (!email) return next(new ErrorHandler("Please enter the email", 400));
 
-  // const user = await User.findOne({ email });
+  const user = await User.findOne({ email });
 
-  // if (!user) return next(new ErrorHandler("Not a registered email", 400));
+  if (!user) return next(new ErrorHandler("Not a registered email", 400));
 
-  // const name = user.name;
-  // const resetToken = await user.getResetToken();
+  const name = user.name;
+  const resetToken = await user.getResetToken();
 
-  // await user.save();
+  await user.save();
 
-  // await sendResetEmail(name, email, resetToken);
+  await sendResetEmail(name, email, resetToken);
 
   res.status(200).json({
     success: true,
@@ -172,24 +172,24 @@ export const ResetPassword = catchAsyncError(async (req, res, next) => {
     .update(token)
     .digest("hex");
 
-  // const user = await User.findOne({
-  //   resetPasswordToken,
-  //   resetPasswordExpire: {
-  //     $gt: Date.now(),
-  //   },
-  // });
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: {
+      $gt: Date.now(),
+    },
+  });
 
-  // if (!user)
-  //   return next(new ErrorHandler("Token is invalid or has been expired", 401));
+  if (!user)
+    return next(new ErrorHandler("Token is invalid or has been expired", 401));
 
-  // if (password != confirmPassword)
-  //   return next(new ErrorHandler("both the password doesn't match", 400));
+  if (password != confirmPassword)
+    return next(new ErrorHandler("both the password doesn't match", 400));
 
-  // user.password = password;
-  // user.resetPasswordToken = undefined;
-  // user.resetPasswordExpire = undefined;
+  user.password = password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
 
-  // await user.save();
+  await user.save();
 
   res.status(200).json({
     success: true,
@@ -198,31 +198,31 @@ export const ResetPassword = catchAsyncError(async (req, res, next) => {
 });
 
 export const addToCart = catchAsyncError(async (req, res, next) => {
-  // const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user._id);
 
-  // const product = await Product.findById(req.body.id);
+  const product = await Product.findById(req.body.id);
 
-  // if (!product) return next(new ErrorHandler("Invalid Product Id", 404));
+  if (!product) return next(new ErrorHandler("Invalid Product Id", 404));
 
-  // const productExist = user.cart.find((item) => {
-  //   if (item.product.toString() === product._id.toString()) return true;
-  // });
+  const productExist = user.cart.find((item) => {
+    if (item.product.toString() === product._id.toString()) return true;
+  });
 
-  // if (productExist)
-  //   return next(new ErrorHandler("Item Already Exist in the cart", 409));
+  if (productExist)
+    return next(new ErrorHandler("Item Already Exist in the cart", 409));
 
-  // user.cart.push({
-  //   product: product._id,
-  //   shopId: product.shopId,
-  //   product_name: product.name,
-  //   product_desc: product.description,
-  //   product_price: product.price,
-  //   product_buy_quant: 1,
-  //   product_image_url: product.images.url,
-  //   product_category: product.category,
-  // });
+  user.cart.push({
+    product: product._id,
+    shopId: product.shopId,
+    product_name: product.name,
+    product_desc: product.description,
+    product_price: product.price,
+    product_buy_quant: 1,
+    product_image_url: product.images.url,
+    product_category: product.category,
+  });
 
-  // await user.save();
+  await user.save();
 
   res.status(200).json({
     success: true,
@@ -231,18 +231,18 @@ export const addToCart = catchAsyncError(async (req, res, next) => {
 });
 
 export const removeFromCart = catchAsyncError(async (req, res, next) => {
-  // const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user._id);
 
-  // // This work can also be done using cart id.
-  // const product = await Product.findById(req.query.id);
-  // if (!product) return next(new ErrorHandler("Invalid product Id", 404));
+  // This work can also be done using cart id.
+  const product = await Product.findById(req.query.id);
+  if (!product) return next(new ErrorHandler("Invalid product Id", 404));
 
-  // const newCart = user.cart.filter((item) => {
-  //   if (item.product.toString() !== product._id.toString()) return item;
-  // });
+  const newCart = user.cart.filter((item) => {
+    if (item.product.toString() !== product._id.toString()) return item;
+  });
 
-  // user.cart = newCart;
-  // await user.save();
+  user.cart = newCart;
+  await user.save();
 
   res.status(200).json({
     success: true,
@@ -251,16 +251,16 @@ export const removeFromCart = catchAsyncError(async (req, res, next) => {
 });
 
 export const updateCart = catchAsyncError(async (req, res, next) => {
-  // const user = await User.findById(req.user._id);
-  // const { cartId, buy_count } = req.body;
+  const user = await User.findById(req.user._id);
+  const { cartId, buy_count } = req.body;
 
-  // const cartProduct = user.cart.find((item) => {
-  //   if (item._id.toString() === cartId.toString()) return item;
-  // });
+  const cartProduct = user.cart.find((item) => {
+    if (item._id.toString() === cartId.toString()) return item;
+  });
 
-  // cartProduct.product_buy_quant = buy_count;
+  cartProduct.product_buy_quant = buy_count;
 
-  // await user.save();
+  await user.save();
 
   res.status(200).json({
     success: true,
@@ -269,47 +269,47 @@ export const updateCart = catchAsyncError(async (req, res, next) => {
 });
 
 export const placeOrder = catchAsyncError(async (req, res, next) => {
-  // // const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user._id);
 
-  // // const { address, state, city, pincode, products } = req.body;
+  const { address, state, city, pincode, products } = req.body;
 
-  // // const parsedProducts = JSON.parse(products);
+  const parsedProducts = JSON.parse(products);
 
-  // // const productsArray = parsedProducts.map((data) => ({
-  // //   product: data.product,
-  // //   shopId: data.shopId,
-  // //   product_name: data.product_name,
-  // //   product_desc: data.product_desc,
-  // //   product_price: data.product_price,
-  // //   product_buy_quant: data.product_buy_quant,
-  // //   product_image_url: data.product_image_url,
-  // //   product_category: data.product_category,
-  // // }));
+  const productsArray = parsedProducts.map((data) => ({
+    product: data.product,
+    shopId: data.shopId,
+    product_name: data.product_name,
+    product_desc: data.product_desc,
+    product_price: data.product_price,
+    product_buy_quant: data.product_buy_quant,
+    product_image_url: data.product_image_url,
+    product_category: data.product_category,
+  }));
 
-  // // const shop = await Shop.findById(productsArray[0].shopId);
+  const shop = await Shop.findById(productsArray[0].shopId);
 
-  // // if (!shop) return next(new ErrorHandler("Shop Not Found", 401));
+  if (!shop) return next(new ErrorHandler("Shop Not Found", 401));
 
-  // // const order = {
-  // //   buyerName: user.name,
-  // //   address: address,
-  // //   state: state,
-  // //   city: city,
-  // //   pincode: pincode,
-  // //   email: user.email,
-  // //   phoneno: user.phoneNo,
-  // //   products: productsArray, // Assuming products is an array of objects
-  // // };
+  const order = {
+    buyerName: user.name,
+    address: address,
+    state: state,
+    city: city,
+    pincode: pincode,
+    email: user.email,
+    phoneno: user.phoneNo,
+    products: productsArray, // Assuming products is an array of objects
+  };
 
-  // // user.order.push(order);
-  // // shop.order.push(order);
+  user.order.push(order);
+  shop.order.push(order);
 
-  // // await user.save();
-  // // await shop.save();
+  await user.save();
+  await shop.save();
 
-  // user.cart = [];
+  user.cart = [];
 
-  // await user.save();
+  await user.save();
 
   res.status(200).json({
     success: true,
