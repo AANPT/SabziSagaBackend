@@ -16,6 +16,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
+
 // using Middlewares
 app.use(express.json());
 app.use(
